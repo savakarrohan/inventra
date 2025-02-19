@@ -1,0 +1,60 @@
+version: '3.7'
+
+services:
+  web:
+    # you should use the --build flag for every node package added
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    # Add additional commands for webpack to 'watch for changes and bundle it to production'
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
+    # Below command for using gunicorn to serve.
+    volumes:
+      # Binding for the django application to be checked
+      - type: bind
+        source: ./backend
+        target: /code
+    ports:
+      - "1081:8000"
+
+  db:
+    image: postgres:14
+    volumes:
+      - postgres_data_v2:/var/lib/postgresql/data/
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+  # Frontend service container
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - web
+    develop:
+      watch:
+        - action : sync
+          path : ./frontend
+          target : /app
+          ignore :
+            - node_modules/
+            - .next/
+        - action : rebuild
+          path : package.json
+    ports: 
+      - "80:3000"
+  #
+  # This service is for cheking logs
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 8888:8080
+
+volumes:
+  postgres_data_v2:
+  nodeModules:
+
