@@ -1,9 +1,18 @@
+/**
+ * This document is for the scanner element
+ */
+
 "use client";
 export const dynamic = "force-dynamic";
 
 import { useState } from "react";
-import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
+import {
+  IDetectedBarcode,
+  Scanner,
+  boundingBox,
+} from "@yudiel/react-qr-scanner";
 import { Button } from "@/components/ui/button";
+import FormQrCode from "@/components/FormQrCode";
 
 export default function Home() {
   const [scannedResults, setScannedResults] = useState<string[]>([]);
@@ -20,19 +29,34 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4">
-      <Scanner
-        styles={{
-          container: { height: "350px", width: "350px" },
-          finderBorder: 3,
-        }}
-        onScan={handleScan}
-        paused={isPaused}
-      />
-      <Button onClick={() => setIsPaused(!isPaused)}>
-        {isPaused ? "Resume" : "Pause"} Scanner
-      </Button>
-      <div className="w-full max-w-md p-4 border rounded-lg shadow-md">
+    <div className="grid grid-cols-12 gap-4 h-full">
+      <div className="col-span-12 md:col-span-4 content-center rounded-lg shadow-xl p-3">
+        <div>
+          <Scanner
+            classNames={{ container: "rounded-xl", video: "rounded-xl" }}
+            formats={["qr_code", "ean_8", "ean_13"]}
+            onScan={handleScan}
+            onError={(error) => {
+              console.log(`onError: ${error}'`);
+            }}
+            components={{
+              audio: true,
+              onOff: false,
+              torch: false,
+              zoom: true,
+              finder: true,
+              tracker: boundingBox,
+            }}
+            allowMultiple={true}
+            scanDelay={2000}
+            paused={isPaused}
+          />
+        </div>
+      </div>
+      <div className="col-span-12 md:col-span-8 rounded-lg shadow-xl justify-items-start p-8">
+        <FormQrCode
+          formData={{ username: scannedResults[scannedResults.length - 1] }}
+        />
         <h2 className="text-lg font-semibold mb-2">Scanned Results:</h2>
         <ul className="list-disc pl-5">
           {scannedResults.map((result, index) => (
