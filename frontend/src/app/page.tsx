@@ -55,7 +55,7 @@ export default function Home() {
       </div>
       <div className="col-span-12 md:col-span-8 rounded-lg shadow-xl justify-items-start p-8">
         <FormQrCode
-          formData={{ username: scannedResults[scannedResults.length - 1] }}
+          formData={{ rawdata: scannedResults[scannedResults.length - 1] }}
         />
         <h2 className="text-lg font-semibold mb-2">Scanned Results:</h2>
         <ul className="list-disc pl-5">
